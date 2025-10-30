@@ -44,6 +44,8 @@ void p_mark(void * p, size_t n) {
     while (n >= 1) {
         p_tree[i] = P_USED_NODE;
         p_sift(i);
+        
+        i++, n--;
     }
 }
 

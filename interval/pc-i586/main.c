@@ -3,16 +3,6 @@
 #include <interval/kernel/main.h>
 #include <interval/pc-i586/multiboot2.h>
 
-/*
-[[gnu::section(".multiboot2")]]
-const multiboot2_header_t header = {
-    .magic = 0xE85250D6,
-    .platform = 0x00000000,
-    .size = sizeof(multiboot2_header_t),
-    .checksum = 0 - (0xE85250D6 + sizeof(multiboot2_header_t)),
-};
-*/
-
 [[gnu::section(".multiboot2")]]
 const unsigned long header[] = {
     0xE85250D6,
@@ -42,16 +32,27 @@ const unsigned long header[] = {
     0x00000008,
 };
 
-static const char * text = "interval r01 :D";
-
-volatile unsigned char * vga_text = (unsigned char *)(0x000B8000);
+static void putc(char c) {
+    static long offset = 0;
+    
+    volatile unsigned char * vga_text = (unsigned char *)(0x000B8000);
+    
+    if (c == '\x0A') {
+        offset = ((offset / 160) + 1) * 160;
+    } else {
+        vga_text[offset++] = c;
+        vga_text[offset++] = 0x0F;
+    }
+}
 
 [[noreturn]]
 void pc_i586_main(void) {
-    while (*(text)) {
-        *(vga_text++) = *(text++);
-        *(vga_text++) = 0x03;
-    }
+    const boot_params_t params = (boot_params_t) {
+        .region_list = NULL,
+        .region_n = 0,
+        
+        .putc = putc,
+    };
     
-    main();
+    main(&(params));
 }
