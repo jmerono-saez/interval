@@ -10,6 +10,9 @@
 #define macro_max(x, y) ((x) < (y) ? (y) : (x))
 #define macro_min(x, y) ((x) < (y) ? (x) : (y))
 
+// useful for parsing aligned structures.
+#define align(p, w) ((p) = (void *)(((intptr_t)(p) + (w) - 1) & -(w)))
+
 // usually used to turn __FILE__ and __LINE__ into strings.
 #define __stringify(z) #z
 #define stringify(z) __stringify(z)

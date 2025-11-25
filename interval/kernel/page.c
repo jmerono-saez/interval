@@ -4,155 +4,151 @@
 
 // === globals ===
 
-void * p_page_region;
-size_t p_page_n;
-
-unsigned char * p_tree;
-unsigned char p_tree_d;
+page_zone_t * page_chain = NULL;
 
 // === functions ===
 
-void p_init(void * region, size_t n, unsigned char * tree) {
-    p_page_region = region;
-    p_page_n = n;
+void page_insert_zone(void * region, size_t n) {
+    page_zone_t * zone = region;
     
-    p_tree = tree;
-    p_tree_d = 0;
+    zone->region = region;
+    zone->n = n;
     
-    while (n >= 2) {
-        n = (n + 1) / 2;
-        p_tree_d++;
+    zone->next = page_chain;
+    page_chain = zone;
+    
+    zone->depth = page_needed_depth(n);
+    
+    size_t tree_width = (uz(1) << zone->depth);
+    size_t meta_bytes = sizeof(page_zone_t) + tree_width * 2;
+    
+    for (size_t i = 0; i < tree_width * 2; i++) {
+        zone->tree[i] = PAGE_FREE_NODE;
     }
     
-    // TODO: replace this with memory operation.
-    
-    size_t tree_size = (uz(2) << p_tree_d);
-    
-    for (size_t i = 0; i < tree_size; i++) {
-        p_tree[i] = 0;
-    }
-    
-    p_mark(p_tree, (tree_size + PAGE_BYTES - 1) / PAGE_BYTES);
+    page_mark(zone, region, (meta_bytes + PAGE_BYTES - 1) / PAGE_BYTES);
+    page_mark(zone, region + n * PAGE_BYTES, tree_width - n);
 }
 
-void p_mark(void * p, size_t n) {
-    // may seem ineficient, but that is just because it is.
-    
-    size_t o = (p - p_page_region) / PAGE_BYTES;
-    size_t i = (uz(1) << p_tree_d) + o - 1;
+void page_mark(page_zone_t * zone, void * p, size_t n) {
+    size_t o = (p - zone->region) / PAGE_BYTES;
+    size_t i = (uz(1) << zone->depth) + o - 1;
     
     while (n >= 1) {
-        p_tree[i] = P_USED_NODE;
-        p_sift(i);
+        zone->tree[i] = PAGE_USED_NODE;
+        page_sift(zone, i);
         
         i++, n--;
     }
 }
 
-void * p_alloc(size_t n) {
-    size_t i = 0;
+void * page_alloc(size_t n) {
+    page_zone_t * zone = page_chain;
     
-    unsigned char d = 0;
+    long needed_depth = page_needed_depth(n);
     
-    while (n >= 2) {
-        n = (n + 1) / 2;
-        d++;
-    }
-    
-    while (true) {
-        if (d == p_width(i)) {
-            break;
+    while (zone != NULL) {
+        long depth = zone->depth;
+        size_t i = 0;
+        
+        if (depth - zone->tree[0] < needed_depth) {
+            zone = zone->next;
+            continue;
         }
         
-        // here we choose which node to go down to based on how tightly
-        // it fits the requested allocation.
-        
-        if (p_width(P_DOWN(i, 1)) >= d) {
-            i = P_DOWN(i, 1);
-        } else {
-            i = P_DOWN(i, 2);
+        while (true) {
+            if (depth - zone->tree[PAGE_DOWN(i, 1)] > needed_depth) {
+                i = PAGE_DOWN(i, 1), depth--;
+                continue;
+            }
+            
+            if (depth - zone->tree[PAGE_DOWN(i, 2)] > needed_depth) {
+                i = PAGE_DOWN(i, 2), depth--;
+                continue;
+            }
+            
+            zone->tree[i] = PAGE_USED_NODE;
+            page_sift(zone, i);
+            
+            size_t tree_width = (uz(1) << zone->depth);
+            
+            while (PAGE_DOWN(i, 1) < tree_width * 2) {
+                i = PAGE_DOWN(i, 1);
+            }
+            
+            size_t o = i + 1 - (uz(1) << zone->depth);
+            return zone->region + o * PAGE_BYTES;
         }
     }
     
-    p_tree[i] = P_USED_NODE;
-    p_sift(i);
-    
-    return p_node_to_region(i);
+    return NULL;
 }
 
-void p_free(void * p) {
-    size_t i = p_region_to_node(p);
+void page_free(void * p) {
+    page_zone_t * zone = page_chain;
     
-    p_tree[i] = P_FREE_NODE;
-    p_sift(i);
+    while (zone != NULL) {
+        if (p < zone->region) {
+            zone = zone->next;
+            continue;
+        }
+        
+        if (p >= zone->region + zone->n * PAGE_BYTES) {
+            zone = zone->next;
+            continue;
+        }
+        
+        size_t o = (p - zone->region) / PAGE_BYTES;
+        size_t i = o + (uz(1) << zone->depth) - 1;
+        
+        while (i >= 1) {
+            if (zone->tree[i] == PAGE_USED_NODE) {
+                break;
+            }
+            
+            i = PAGE_UP(i);
+        }
+        
+        zone->tree[i] = PAGE_FREE_NODE;
+        page_sift(zone, i);
+        
+        break;
+    }
 }
 
 // === inner functions ===
 
-unsigned char p_depth(size_t i) {
-    unsigned char d = 0;
+long page_needed_depth(size_t n) {
+    long d = 0;
     
-    while (i >= 1) {
-        i = P_UP(i);
+    while (n >= 2) {
+        n = (n + 1) / 2;
         d++;
     }
     
     return d;
 }
 
-size_t p_index(size_t i) {
-    return i + 1 - (uz(1) << p_depth(i));
-}
-
-size_t p_width(size_t i) {
-    return p_tree_d - (p_tree[i] + p_depth(i));
-}
-
-void * p_node_to_region(size_t i) {
-    // the easy one, get depth and index and do math.
-    
-    size_t bytes = uz(PAGE_BYTES) << (p_tree_d - p_depth(i));
-    
-    return p_page_region + p_index(i) * bytes;
-}
-
-size_t p_region_to_node(void * p) {
-    // the hard one, get leaf and go up until you get P_USED_NODE.
-    
-    size_t o = (p - p_page_region) / PAGE_BYTES;
-    size_t i = (uz(1) << p_tree_d) + o - 1;
-    
-    while (i >= 1) {
-        if (p_tree[i] == P_USED_NODE) {
-            break;
-        }
-        
-        i = P_UP(i);
-    }
-    
-    return i;
-}
-
-void p_sift(size_t i) {
+void page_sift(page_zone_t * zone, size_t i) {
     unsigned char u, v, w;
     
     while (i >= 1) {
-        i = P_UP(i);
+        i = PAGE_UP(i);
         
-        u = p_tree[P_DOWN(i, 1)];
-        v = p_tree[P_DOWN(i, 2)];
+        u = zone->tree[PAGE_DOWN(i, 1)];
+        v = zone->tree[PAGE_DOWN(i, 2)];
         w = macro_min(u, v) + 1;
         
         if (u == v) {
-            if (u == P_FREE_NODE || u == P_USED_NODE) {
+            if (u == PAGE_FREE_NODE || u == PAGE_USED_NODE) {
                 w = u;
             }
         }
         
-        if (p_tree[i] == w) {
+        if (zone->tree[i] == w) {
             break;
         }
         
-        p_tree[i] = w;
+        zone->tree[i] = w;
     }
 }

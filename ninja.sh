@@ -30,6 +30,8 @@ elif test $PLATFORM = "pc-i586"; then
     ld="/usr/cross/bin/i586-pc-elf-ld"
     
     cc_options="${cc_options} -D PAGE_BYTES=4096"
+    cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=32"
+    
     ld_options="${ld_options} -L /usr/cross/lib/gcc/i586-pc-elf/14.3.0"
 elif test $PLATFORM = "pc-amd64"; then
     echo -e "${echo_fail}: pc-amd64 is not implemented yet"
@@ -40,6 +42,7 @@ elif test $PLATFORM = "watch-armv8-m"; then
     ld="/usr/cross/bin/armv8-none-elf-ld"
     
     cc_options="${cc_options} -D PAGE_BYTES=1024"
+    cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=10"
 else
     echo -e "${echo_fail}: an unknown PLATFROM was specified"
     exit 1
@@ -50,8 +53,6 @@ cc_options="${cc_options} -fdiagnostics-color=always"
 cc_options="${cc_options} -I ."
 cc_options="${cc_options} -std=c23"
 cc_options="${cc_options} -Os"
-
-as_options="${as_options} -fdiagnostics-color=always"
 
 ld_options="${ld_options} -T ${extra_path}/linker.l"
 ld_options="${ld_options} -l gcc"

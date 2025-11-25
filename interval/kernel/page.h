@@ -9,38 +9,42 @@
 #error "PAGE_BYTES is not defined"
 #endif
 
-#define P_UP(i)      ((i - 1) / 2)
-#define P_DOWN(i, j) ((i * 2) + j)
+#define PAGE_UP(i)      ((i - 1) / 2)
+#define PAGE_DOWN(i, j) ((i * 2) + j)
 
-#define P_FREE_NODE (unsigned char)(0x00)
-#define P_USED_NODE (unsigned char)(0xFF)
+#define PAGE_FREE_NODE (unsigned char)(0x00)
+#define PAGE_USED_NODE (unsigned char)(0xFF)
+
+// === types ===
+
+typedef struct page_zone_t page_zone_t;
+
+struct page_zone_t {
+    void * region;
+    size_t n;
+    
+    page_zone_t * next;
+    
+    long depth;
+    
+    unsigned char tree[/* (2 << depth) */];
+};
 
 // === globals ===
 
-extern void * p_page_region;
-extern size_t p_page_n;
-
-extern unsigned char * p_tree;
-extern unsigned char p_tree_d;
+extern page_zone_t * page_chain;
 
 // === functions ===
 
-void p_init(void * region, size_t n, unsigned char * tree);
-void p_mark(void * p, size_t n);
+void page_insert_zone(void * region, size_t n);
+void page_mark(page_zone_t * zone, void * p, size_t n);
 
-void * p_alloc(size_t n);
-void p_free(void * p);
+void * page_alloc(size_t n);
+void page_free(void * p);
 
 // === inner functions ===
 
-unsigned char p_depth(size_t i);
-size_t p_index(size_t i);
-
-size_t p_width(size_t i);
-
-void * p_node_to_region(size_t i);
-size_t p_region_to_node(void * p);
-
-void p_sift(size_t i);
+long page_needed_depth(size_t n);
+void page_sift(page_zone_t * zone, size_t i);
 
 #endif
