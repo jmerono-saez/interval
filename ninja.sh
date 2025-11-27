@@ -29,8 +29,9 @@ elif test $PLATFORM = "pc-i586"; then
     as="/usr/cross/bin/i586-pc-elf-as"
     ld="/usr/cross/bin/i586-pc-elf-ld"
     
-    cc_options="${cc_options} -D PAGE_BYTES=4096"
+    cc_options="${cc_options} -D HEAP_N=18"
     cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=32"
+    cc_options="${cc_options} -D PAGE_BYTES=4096"
     
     ld_options="${ld_options} -L /usr/cross/lib/gcc/i586-pc-elf/14.3.0"
 elif test $PLATFORM = "pc-amd64"; then
@@ -41,8 +42,9 @@ elif test $PLATFORM = "watch-armv8-m"; then
     as="/usr/cross/bin/armv8-none-elf-as"
     ld="/usr/cross/bin/armv8-none-elf-ld"
     
-    cc_options="${cc_options} -D PAGE_BYTES=1024"
+    cc_options="${cc_options} -D HEAP_N=11"
     cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=10"
+    cc_options="${cc_options} -D PAGE_BYTES=1024"
 else
     echo -e "${echo_fail}: an unknown PLATFROM was specified"
     exit 1

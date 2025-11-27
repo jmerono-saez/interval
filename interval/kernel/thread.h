@@ -3,27 +3,37 @@
 
 #include <stddef.h>
 
-/*
-    Threads in interval act very simply, by just including regions of
-    memory in both physical-space and thread-space, alongside some
-    metadata to be used during scheduling and context switching.
-*/
+// === constants ===
+
+// a single tick is a 1024th of a second.
+
+#define THREAD_TICKS 20
+
+// === types ===
+
+typedef struct thread_zone_t thread_zone_t;
+
+struct thread_zone_t {
+    void * region;
+    size_t n;
+    
+    void * mapped; // matches region on MMU-less platforms.
+    
+    thread_zone_t * next;
+};
 
 typedef struct thread_t thread_t;
-typedef struct t_region_t t_region_t;
 
 struct thread_t {
-    t_region_t * regions;
-    size_t       region_count;
+    thread_zone_t * zone_chain;
+    
+    thread_t * prev, * next;
 };
 
-struct t_region_t {
-    // In physical-space:
-    void * pages;
-    size_t page_count;
-    
-    // In thread-space:
-    void * here;
-};
+// === globals ===
+
+extern thread_t * thread_queue;
+
+// === functions ===
 
 #endif
