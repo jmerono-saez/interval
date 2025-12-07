@@ -12,6 +12,7 @@ void main(void) {
     
     heap_init();
     
+    /*
     for (long i = 0; i < 10; i++) {
         void * p = heap_alloc(i * 50 + 1);
         
@@ -24,8 +25,7 @@ void main(void) {
         
         logger_print("allocated and freed 20 bytes, got %z\n", p);
     }
-    
-    // heap_alloc();
+    */
     
     // time_update();
     // time_tick();

@@ -1,13 +1,18 @@
 #ifndef __INTERVAL_PC_I586_MULTIBOOT2_H__
 #define __INTERVAL_PC_I586_MULTIBOOT2_H__
 
+#include <interval/pc-i586/boot.h>
+
 #include <stdint.h>
 
 // === constants ===
 
 enum : uint32_t {
-    MULTIBOOT2_TAIL      = 0x00,
-    MULTIBOOT2_ZONE_LIST = 0x06,
+    MULTIBOOT2_TAIL        = 0x00,
+    MULTIBOOT2_ZONE_LIST   = 0x06,
+    MULTIBOOT2_FRAMEBUFFER = 0x08,
+    MULTIBOOT2_RSDP_V1     = 0x0E,
+    MULTIBOOT2_RSDP_V2     = 0x0F,
 };
 
 enum : uint32_t {
@@ -51,6 +56,20 @@ struct [[gnu::packed]] mbt2_info_t {
                 uint32_t type;
                 uint32_t reserved[1];
             } zone_list[/* MULTIBOOT_ZONE_N(...) */];
+        };
+        
+        /*
+        struct [[gnu::packed]] {
+            // MULTIBOOT2_FRAMEBUFFER
+            
+            // TODO
+        };
+        */
+        
+        struct [[gnu::packed]] {
+            // MULTIBOOT2_RSDP_Vx
+            
+            rsdp_t rsdp;
         };
     };
 };

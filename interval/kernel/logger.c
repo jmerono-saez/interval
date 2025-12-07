@@ -89,3 +89,15 @@ void logger_print(const char * format, ...) {
     
     va_end(args);
 }
+
+void logger_dump(const void * region, size_t size) {
+    const unsigned char * byte_list = region;
+    const char * digits = "0123456789ABCDEF";
+    
+    for (size_t i = 0; i < size; i++) {
+        logger_putc(digits[(byte_list[i] >> 4) & 0x0F]);
+        logger_putc(digits[(byte_list[i]) & 0x0F]);
+    }
+    
+    logger_putc(0x0A);
+}

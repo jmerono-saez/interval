@@ -27,5 +27,6 @@ void logger_early_init(void(* early_putc)(char c));
 void logger_putc(char c);
 
 void logger_print(const char * format, ...);
+void logger_dump(const void * region, size_t size);
 
 #endif

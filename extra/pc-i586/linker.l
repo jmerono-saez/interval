@@ -7,6 +7,13 @@ SECTIONS {
     
     .text : {
         *(.multiboot2)
+        
+        . = ALIGN(0x80);
+        
+        *(.interrupts)
+        
+        . = ALIGN(0x10);
+        
         *(.text)
         *(.rodata)
     }
@@ -20,9 +27,10 @@ SECTIONS {
     . = ALIGN(0x1000);
     
     .zero : {
+        *(.zero)
         *(.bss)
         
-        . = ALIGN(0x1000);
+        . = ALIGN(0x10);
         
         pc_i586_zero = .;
         
