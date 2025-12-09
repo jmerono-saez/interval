@@ -5,10 +5,6 @@
 
 // === constants ===
 
-#ifndef PAGE_BYTES
-#error "PAGE_BYTES is not defined"
-#endif
-
 #define PAGE_UP(i)      ((i - 1) / 2)
 #define PAGE_DOWN(i, j) ((i * 2) + j)
 

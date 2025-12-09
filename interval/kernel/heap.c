@@ -1,15 +1,18 @@
 #include <interval/kernel/heap.h>
 
-#include <interval/kernel/page.h>
+#include <interval/values.h>
 
 // === globals ===
 
 heap_unit_t * heap_chain_list[HEAP_N];
 size_t heap_f_list[HEAP_N];
 
+void *(* heap_expand_pages)(size_t);
+void(* heap_free_pages)(void *);
+
 // === functions ===
 
-void heap_init(void) {
+void heap_init(void *(* expand)(size_t), void(* free)(void *)) {
     for (size_t i = 0; i < HEAP_N; i++) {
         heap_chain_list[i] = NULL;
         
@@ -19,6 +22,9 @@ void heap_init(void) {
             heap_f_list[i] = heap_f_list[i - 1] + heap_f_list[i - 2];
         }
     }
+    
+    heap_expand_pages = expand;
+    heap_free_pages = free;
 }
 
 void * heap_alloc(size_t bytes) {
@@ -43,7 +49,7 @@ void * heap_alloc(size_t bytes) {
             return NULL;
         }
     } else {
-        heap_unit_t * unit = page_alloc(n);
+        heap_unit_t * unit = heap_expand_pages(n);
         
         if (unit == NULL) {
             return NULL;
@@ -60,7 +66,7 @@ void heap_free(void * p) {
     if (unit->i < HEAP_N) {
         heap_insert_unit(unit, unit->i);
     } else {
-        page_free(unit);
+        heap_free_pages(unit);
     }
 }
 
@@ -107,7 +113,7 @@ bool heap_expand(void) {
     size_t i = HEAP_N - 1;
     size_t n = (heap_unit_bytes(i) + PAGE_BYTES - 1) / PAGE_BYTES;
     
-    void * p = page_alloc(n);
+    void * p = heap_expand_pages(n);
     if (p == NULL) return false;
     
     size_t bytes = n * PAGE_BYTES;

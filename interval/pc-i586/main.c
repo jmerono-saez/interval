@@ -1,9 +1,9 @@
 #include <interval/pc-i586/main.h>
 
-#include <interval/kernel/logger.h>
 #include <interval/kernel/main.h>
 #include <interval/kernel/page.h>
 #include <interval/macros.h>
+#include <interval/values.h>
 #include <interval/pc-i586/boot.h>
 #include <interval/pc-i586/interrupts.h>
 #include <interval/pc-i586/multiboot2.h>
@@ -109,15 +109,8 @@ void pc_i586_main(void * mbt2) {
         rsdp_is_v2 = (rsdp->revision >= 2);
     }
     
-    logger_early_init(putc);
-    
     fadt_t * fadt = dt_search(rsdp, rsdp_is_v2, FADT_SIGN);
-    logger_print("FADT at %z\n", fadt);
-    
     madt_t * madt = dt_search(rsdp, rsdp_is_v2, MADT_SIGN);
-    logger_print("MADT at %z, local APIC at %z\n", madt, madt->apic_32);
-    
-    while (true);
     
     // pc_i586_ints_enable();
     

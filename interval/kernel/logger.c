@@ -4,17 +4,13 @@
 
 #include <stdarg.h>
 
-void(* logger_early_putc)(char c) = NULL;
-
 char * logger_circular = NULL;
 size_t logger_size = 0;
 
 size_t logger_tail = 0;
 size_t logger_head = 0;
 
-void logger_early_init(void(* early_putc)(char c)) {
-    logger_early_putc = early_putc;
-    
+void logger_early_init(void) {
     logger_circular = page_alloc(LOGGER_CIRCULAR_PAGES);
     logger_size = LOGGER_CIRCULAR_PAGES * PAGE_BYTES;
     
@@ -23,10 +19,6 @@ void logger_early_init(void(* early_putc)(char c)) {
 }
 
 void logger_putc(char c) {
-    if (logger_early_putc != NULL) {
-        logger_early_putc(c);
-    }
-    
     // if (output != NULL) {
     //     output_write_byte(c);
     // }

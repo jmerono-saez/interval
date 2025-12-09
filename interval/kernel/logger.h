@@ -11,8 +11,6 @@
 
 // === globals ===
 
-extern void(* logger_early_putc)(char c);
-
 extern char * logger_circular;
 extern size_t logger_size;
 
@@ -21,7 +19,7 @@ extern size_t logger_head;
 
 // === functions ===
 
-void logger_early_init(void(* early_putc)(char c));
+void logger_early_init(void);
 // void logger_init(output_t * output);
 
 void logger_putc(char c);

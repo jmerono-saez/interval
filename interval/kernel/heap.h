@@ -25,9 +25,12 @@ struct heap_unit_t {
 extern heap_unit_t * heap_chain_list[HEAP_N];
 extern size_t heap_f_list[HEAP_N];
 
+extern void *(* heap_expand_pages)(size_t);
+extern void(* heap_free_pages)(void *);
+
 // === functions ===
 
-void heap_init(void);
+void heap_init(void *(* expand)(size_t), void(* free)(void *));
 
 void * heap_alloc(size_t bytes);
 void heap_free(void * p);

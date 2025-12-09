@@ -38,23 +38,26 @@ elif test $PLATFORM = "pc-amd64"; then
     echo -e "${echo_fail}: pc-amd64 is not implemented yet"
     exit 1
 elif test $PLATFORM = "watch-armv8-m"; then
-    cc="/usr/cross/bin/armv8-none-elf-gcc"
-    as="/usr/cross/bin/armv8-none-elf-as"
-    ld="/usr/cross/bin/armv8-none-elf-ld"
+    cc="/usr/cross/bin/arm-eabi-gcc"
+    as="/usr/cross/bin/arm-eabi-as"
+    ld="/usr/cross/bin/arm-eabi-ld"
     
     cc_options="${cc_options} -D HEAP_N=11"
     cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=10"
     cc_options="${cc_options} -D PAGE_BYTES=1024"
+    
+    ld_options="${ld_options} -L /usr/cross/lib/gcc/arm-eabi/14.3.0"
 else
     echo -e "${echo_fail}: an unknown PLATFROM was specified"
     exit 1
 fi
 
+cc_options="${cc_options} -D PLATFORM=\"$PLATFORM\""
 cc_options="${cc_options} -ffreestanding"
 cc_options="${cc_options} -fdiagnostics-color=always"
 cc_options="${cc_options} -I ."
 cc_options="${cc_options} -std=c23"
-cc_options="${cc_options} -Os"
+cc_options="${cc_options} -O0 -g"
 
 ld_options="${ld_options} -T ${extra_path}/linker.l"
 ld_options="${ld_options} -l gcc"

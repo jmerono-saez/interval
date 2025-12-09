@@ -1,6 +1,7 @@
 #include <interval/kernel/page.h>
 
 #include <interval/macros.h>
+#include <interval/values.h>
 
 // === globals ===
 

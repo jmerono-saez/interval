@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+// === constants ===
+
 // when C supports the "uz" prefix I will be so happy.
 #define uz(z) ((size_t)(z))
 
@@ -12,9 +14,5 @@
 
 // useful for parsing aligned structures.
 #define align(p, w) ((p) = (void *)(((intptr_t)(p) + (w) - 1) & -(w)))
-
-// usually used to turn __FILE__ and __LINE__ into strings.
-#define __stringify(z) #z
-#define stringify(z) __stringify(z)
 
 #endif
