@@ -29,8 +29,6 @@ elif test $PLATFORM = "pc-i586"; then
     as="/usr/cross/bin/i586-pc-elf-as"
     ld="/usr/cross/bin/i586-pc-elf-ld"
     
-    cc_options="${cc_options} -D HEAP_N=18"
-    cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=32"
     cc_options="${cc_options} -D PAGE_BYTES=4096"
     
     ld_options="${ld_options} -L /usr/cross/lib/gcc/i586-pc-elf/14.3.0"
@@ -42,8 +40,6 @@ elif test $PLATFORM = "watch-armv8-m"; then
     as="/usr/cross/bin/arm-eabi-as"
     ld="/usr/cross/bin/arm-eabi-ld"
     
-    cc_options="${cc_options} -D HEAP_N=11"
-    cc_options="${cc_options} -D LOGGER_CIRCULAR_PAGES=10"
     cc_options="${cc_options} -D PAGE_BYTES=1024"
     
     ld_options="${ld_options} -L /usr/cross/lib/gcc/arm-eabi/14.3.0"
@@ -63,11 +59,12 @@ ld_options="${ld_options} -T ${extra_path}/linker.l"
 ld_options="${ld_options} -l gcc"
 
 kernel_modules="${kernel_modules} interval"
-kernel_modules="${kernel_modules} interval/kernel"
 kernel_modules="${kernel_modules} interval/$PLATFORM"
+kernel_modules="${kernel_modules} interval/kernel"
 
 user_modules="${user_modules} interval"
-user_modules="${user_modules} programs/<NAME>"
+user_modules="${user_modules} programs/%NAME"
+user_modules="${user_modules} interval/user"
 
 # === tool rule generation ===
 
@@ -132,7 +129,7 @@ for program in ${programs_path}/*; do
     
     echo -e "${echo_note}: adding build rules for '${program}'"
     
-    for module in ${user_modules/<NAME>/${program}}; do
+    for module in ${user_modules/%NAME/${program}}; do
         echo -e "${echo_note}: adding module '${module}' to build"
         
         mkdir -p "${build_path}/${program}/${module}"
