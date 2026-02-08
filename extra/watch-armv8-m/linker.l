@@ -5,7 +5,7 @@ MEMORY {
 
 SECTIONS {
     .text : ALIGN(0x80) {
-        *(.jump_table)
+        *(.vector_table)
         
         . = ALIGN(0x80);
         

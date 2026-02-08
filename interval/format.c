@@ -1,20 +1,22 @@
 #include <interval/format.h>
 
-#include <interval/operations.h>
-
 long format_va(stream_t * stream, const char * text, va_list args) {
     long bytes = 0;
     
     for (long i = 0; text[i]; i++) {
-        if (text[i] != '%') {
-            bytes += write(stream, text + i, 1);
-            continue;
-        }
-        
         // TODO: implement this!
+        
+        if (text[i] == '%') {
+            switch (text[++i]) {
+                case 'c':
+                    bytes++;
+                    break;
+            }
+        } else {
+            bytes++;
+        }
     }
     
-    // TODO: optimize such that buffering is performed!
     va_end(args);
     
     return bytes;

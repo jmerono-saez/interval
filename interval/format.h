@@ -2,6 +2,7 @@
 #define __INTERVAL_FORMAT_H__
 
 #include <interval/stream.h>
+
 #include <stdarg.h>
 
 // === functions ===

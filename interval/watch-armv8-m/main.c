@@ -1,11 +1,12 @@
-#include <interval/watch-armv8-m/entrypoint.h>
+#include <interval/watch-armv8-m/main.h>
 
-#include <interval/kernel/page.h>
+#include <interval/memory.h>
 #include <interval/operations.h>
 
-#include <interval/io.h>
+#include <interval/kernel/device.h>
+#include <interval/kernel/main.h>
 
-#include <interval/kernel/entrypoint.h>
+#include <interval/watch-armv8-m/devices/efr32mg24-gpio.h>
 
 extern const void watch_armv8_m_data_left;
 extern const void watch_armv8_m_data_right;
@@ -17,16 +18,7 @@ extern const void watch_armv8_m_zero_right;
 
 bool do_sleep = true;
 
-static stream_t kernel_stream = (stream_t) {
-    .data = NULL,
-    
-    .write_fn = NULL,
-    .read_fn = NULL,
-    
-    .is_empty_fn = NULL,
-};
-
-void watch_armv8_m_entrypoint(void) {
+void watch_armv8_m_main(void) {
     void * data_left  = (void *)(&(watch_armv8_m_data_left));
     void * data_right = (void *)(&(watch_armv8_m_data_right));
     
@@ -39,9 +31,16 @@ void watch_armv8_m_entrypoint(void) {
     void * zero_left  = (void *)(&(watch_armv8_m_zero_left));
     void * zero_right = (void *)(&(watch_armv8_m_zero_right));
     
-    pool_store_zone(&(page_pool), zero_left, (zero_right - zero_left) / PAGE_BYTES);
+    memory_init();
+    memory_store(zero_left, zero_right);
     
-    io_init(&(kernel_stream));
+    device_init();
     
-    entrypoint();
+    // efr32mg24_clocks_init();
+    // efr32mg24_energy_init();
+    // ...
+    
+    efr32mg24_gpio_init();
+    
+    main();
 }

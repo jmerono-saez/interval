@@ -1,17 +1,28 @@
 #ifndef __INTERVAL_MEMORY_H__
 #define __INTERVAL_MEMORY_H__
 
-#include <stddef.h>
+#include <interval/list.h>
 
-// === types ===
+// === constants ===
 
-typedef void * wide_alloc_fn_t(long wide_count);
+#define BYTES_IN_UNIT 32
+#define EARLY_BUMP_UNITS 12
+
+// === macros ===
+
+#define round_up_units(bytes) (((long)(bytes) + BYTES_IN_UNIT - 1) / BYTES_IN_UNIT)
+#define round_down_units(bytes) ((long)(bytes) / BYTES_IN_UNIT)
+
+// === globals ===
+
+extern list_t memory_pools;
 
 // === functions ===
 
-void memory_init(wide_alloc_fn_t * wide_alloc_fn, long wide_bytes);
+void memory_init(void);
+void memory_store(void * left, void * right);
 
 void * alloc(long bytes);
-void free(void * p);
+void free(void * pt);
 
 #endif

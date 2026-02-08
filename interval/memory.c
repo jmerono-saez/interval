@@ -1,35 +1,68 @@
 #include <interval/memory.h>
-
 #include <interval/pool.h>
 
-static wide_alloc_fn_t * memory_wide_alloc_fn;
-static long memory_wide_bytes;
+// === globals ===
 
-static pool_t memory_pool;
+list_t memory_pools;
 
-void memory_init(wide_alloc_fn_t * wide_alloc_fn, long wide_bytes) {
-    memory_wide_alloc_fn = wide_alloc_fn;
-    memory_wide_bytes = wide_bytes;
+// === functions ===
+
+void memory_init(void) {
+    list_init(&(memory_pools));
+}
+
+void memory_store(void * left, void * right) {
+    pool_t * pool = left;
     
-    memory_pool = pool_null(sizeof(long));
+    pool_init(pool, round_down_units(right - left));
+    pool_mark(pool, 0, round_up_units(pool_size(pool)));
+    
+    list_store(memory_pools.end, pool);
 }
 
 void * alloc(long bytes) {
-    const long units = (bytes + memory_pool.unit_bytes - 1) / memory_pool.unit_bytes;
-    void * p = pool_alloc(&(memory_pool), units);
+    iterator_t * it = memory_pools.begin;
     
-    if (p != NULL) {
-        return p;
+    while (it != memory_pools.end) {
+        pool_t * pool = it->item;
+        long o = pool_alloc(pool, round_up_units(bytes));
+        
+        if (o != pool_invalid) {
+            return (o * BYTES_IN_UNIT + it->item);
+        }
+        
+        it = it->next;
     }
     
-    const long pages = (bytes + memory_wide_bytes - 1) / memory_wide_bytes;
-    const long wide_units = (pages * memory_wide_bytes) / memory_pool.unit_bytes;
+    // this early allocator allows us to use lists to store allocator
+    // data structures, and also serves to mandate some minimum units
+    // to perform a graceful out-of-memory during startup.
     
-    pool_store_zone(&(memory_pool), memory_wide_alloc_fn(pages * 4), wide_units);
+    static unsigned char early_units[EARLY_BUMP_UNITS][BYTES_IN_UNIT];
+    static long early_unit_count = 0;
     
-    return alloc(bytes);
+    if (EARLY_BUMP_UNITS >= round_up_units(bytes) + early_unit_count) {
+        void * pt = early_units + early_unit_count;
+        
+        early_unit_count += round_up_units(bytes);
+        return pt;
+    }
+    
+    return NULL;
 }
 
-void free(void * p) {
-    pool_free(&(memory_pool), p);
+void free(void * pt) {
+    iterator_t * it = memory_pools.begin;
+    
+    while (it != memory_pools.end) {
+        pool_t * pool = it->item;
+        long o = (pt - it->item) / BYTES_IN_UNIT;
+        
+        if (o >= 0 && o < pool->count) {
+            pool_free(pool, o);
+            return;
+        }
+        
+        it = it->next;
+    }
 }

@@ -60,6 +60,7 @@ ld_options="${ld_options} -l gcc"
 
 kernel_modules="${kernel_modules} interval"
 kernel_modules="${kernel_modules} interval/$PLATFORM"
+kernel_modules="${kernel_modules} interval/$PLATFORM/devices"
 kernel_modules="${kernel_modules} interval/kernel"
 
 user_modules="${user_modules} interval"
