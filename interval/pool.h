@@ -5,7 +5,7 @@
 
 // === constants ===
 
-#define pool_invalid (long)(0 - 1)
+#define pool_null (long)(0 - 1)
 
 enum : unsigned char {
     pool_free_node = 0x00,
@@ -36,7 +36,6 @@ void pool_sift(pool_t * pool, long n);
 // === functions ===
 
 void pool_init(pool_t * pool, long count);
-
 void pool_mark(pool_t * pool, long o_left, long o_right);
 
 long pool_alloc(pool_t * pool, long count);

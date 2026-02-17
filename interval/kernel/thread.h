@@ -12,8 +12,6 @@ typedef void switch_method_t(thread_t * current, thread_t * next);
 struct thread_t {
     long id;
     
-    void * data;
-    
     list_t streams;
     list_t zones;
 };

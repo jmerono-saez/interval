@@ -17,7 +17,7 @@ void memory_store(void * left, void * right) {
     pool_init(pool, round_down_units(right - left));
     pool_mark(pool, 0, round_up_units(pool_size(pool)));
     
-    list_store(memory_pools.end, pool);
+    iterator_store(memory_pools.end, pool);
 }
 
 void * alloc(long bytes) {
@@ -27,7 +27,7 @@ void * alloc(long bytes) {
         pool_t * pool = it->item;
         long o = pool_alloc(pool, round_up_units(bytes));
         
-        if (o != pool_invalid) {
+        if (o != pool_null) {
             return (o * BYTES_IN_UNIT + it->item);
         }
         

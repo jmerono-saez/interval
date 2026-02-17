@@ -5,7 +5,7 @@
 
 // === constants ===
 
-#define EFR32MG24_GPIO_NAME "efr32mg24-gpio-v3"
+#define EFR32MG24_GPIO_NAME "gpio0"
 
 enum : long {
     efr32mg24_gpio_lane,
@@ -15,10 +15,6 @@ enum : long {
     efr32mg24_gpio_port_c_lane,
     efr32mg24_gpio_port_d_lane,
 };
-
-// === globals ===
-
-extern device_t efr32mg24_gpio;
 
 // === functions ===
 

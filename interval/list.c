@@ -1,7 +1,29 @@
 #include <interval/list.h>
 #include <interval/memory.h>
 
-// === functions ===
+// === iterator_t functions ===
+
+void iterator_store(iterator_t * it, void * item) {
+    list_t * list = it->list;
+    
+    iterator_t * next_it = alloc(sizeof(iterator_t));
+    
+    next_it->item = it->item;
+    next_it->list = list;
+    
+    next_it->next = it->next;
+    
+    if (list->end == it) {
+        list->end = next_it;
+    }
+    
+    it->item = item;
+    it->next = next_it;
+    
+    list->count++;
+}
+
+// === list_t functions ===
 
 void list_init(list_t * list) {
     list->count = 0;
@@ -12,45 +34,25 @@ void list_init(list_t * list) {
     list->__iterator = ((iterator_t) {NULL, list, NULL});
 }
 
-void list_store(iterator_t * iterator, void * item) {
-    list_t * list = iterator->list;
-    
-    iterator_t * next = alloc(sizeof(iterator_t));
-    
-    next->item = iterator->item;
-    next->list = list;
-    
-    next->next = iterator->next;
-    
-    if (list->end == iterator) {
-        list->end = next;
-    }
-    
-    iterator->item = item;
-    iterator->next = next;
-    
-    list->count++;
-}
-
 void list_clean(list_t * list) {
-    iterator_t * iterator = list->begin;
+    iterator_t * it = list->begin;
     
-    while (iterator != list->end) {
-        iterator_t * next = iterator->next;
+    while (it != list->end) {
+        iterator_t * next_it = it->next;
         
-        if (iterator->item == NULL) {
-            iterator->item = next->item;
-            iterator->next = next->next;
+        if (it->item == NULL) {
+            it->item = next_it->item;
+            it->next = next_it->next;
             
             list->count--;
             
-            if (list->end == next) {
-                list->end = iterator;
+            if (list->end == next_it) {
+                list->end = it;
             }
             
-            free(next);
+            free(next_it);
         } else {
-            iterator = next;
+            it = next_it;
         }
     }
 }

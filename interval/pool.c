@@ -64,7 +64,7 @@ long pool_alloc(pool_t * pool, long count) {
     long n = 0, needed_depth = pool_needed_depth(count);
     
     if (depth - pool->tree[0] < needed_depth) {
-        return pool_invalid;
+        return pool_null;
     }
     
     while (true) {

@@ -24,11 +24,13 @@ struct list_t {
     iterator_t __iterator; // this avoids an initial allocation or dangling memory.
 };
 
-// === functions ===
+// === iterator_t functions ===
+
+void iterator_store(iterator_t * it, void * item);
+
+// === list_t functions ===
 
 void list_init(list_t * list);
-void list_store(iterator_t * iterator, void * item);
-
 void list_clean(list_t * list);
 
 #endif
