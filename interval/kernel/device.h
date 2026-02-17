@@ -30,7 +30,7 @@ struct lane_t {
 };
 
 struct device_t {
-    long id;
+    const char * name;
     rwable_t *(* open)(device_t * device, long id);
     
     list_t lanes;

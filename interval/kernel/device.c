@@ -64,7 +64,7 @@ void device_init(void) {
 device_t * device_alloc(const char * name, rwable_t *(* open)(device_t *, long)) {
     device_t * device = alloc(sizeof(device_t));
     
-    device->id = 0; // TODO
+    device->name = name;
     device->open = open;
     
     list_init(&(device->lanes));
@@ -74,5 +74,17 @@ device_t * device_alloc(const char * name, rwable_t *(* open)(device_t *, long))
 }
 
 device_t * device_by_name(const char * name) {
-    return NULL; // TODO
+    iterator_t * it = devices.begin;
+    
+    while (it != devices.end) {
+        device_t * device = it->item;
+        
+        if (equals_text(device->name, name)) {
+            return device;
+        }
+        
+        it = it->next;
+    }
+    
+    return NULL;
 }

@@ -1,6 +1,6 @@
 #include <interval/operations.h>
 
-// === functions ===
+// === generic functions ===
 
 long hash(const void * pt, long bytes) {
     // this hash function was written to give decent-ish results while
@@ -23,15 +23,6 @@ void move(void * to, const void * from, long bytes) {
     }
 }
 
-void swap(void * pt_1, void * pt_2, long bytes) {
-    for (long i = 0; i < bytes; i++) {
-        const char temp = ((char *)(pt_2))[i];
-        
-        ((char *)(pt_1))[i] = ((char *)(pt_2))[i];
-        ((char *)(pt_2))[i] = temp;
-    }
-}
-
 bool equals(const void * pt_1, const void * pt_2, long bytes) {
     for (long i = 0; i < bytes; i++) {
         if (((char *)(pt_1))[i] != ((char *)(pt_2))[i]) {
@@ -42,7 +33,16 @@ bool equals(const void * pt_1, const void * pt_2, long bytes) {
     return true;
 }
 
-void sort(void * items, long item_bytes, long item_count, is_ordered_method_t * is_ordered) {
+void swap(void * pt_1, void * pt_2, long bytes) {
+    for (long i = 0; i < bytes; i++) {
+        const char temp = ((char *)(pt_1))[i];
+        
+        ((char *)(pt_1))[i] = ((char *)(pt_2))[i];
+        ((char *)(pt_2))[i] = temp;
+    }
+}
+
+void sort(void * items, long item_bytes, long item_count, bool(* is_ordered)(const void *, const void *)) {
     static const long steps[9] = {1, 4, 10, 23, 57, 132, 301, 701, 1750};
     char temp[item_bytes];
     
@@ -74,4 +74,28 @@ long length_of(const char * text) {
     }
     
     return length;
+}
+
+// === text functions ===
+
+long hash_text(const char * text) {
+    return hash(text, length_of(text));
+}
+
+void move_text(char * to, const char * from) {
+    for (long i = 0; from[i]; i++) {
+        to[i] = from[i];
+    }
+    
+    to[i] = '\0';
+}
+
+bool equals_text(const char * text_1, const char * text_2) {
+    for (long i = 0; text_1[i] || text_2[i]; i++) {
+        if (text_1[i] != text_2[i]) {
+            return false;
+        }
+    }
+    
+    return true;
 }
