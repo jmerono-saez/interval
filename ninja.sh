@@ -29,20 +29,19 @@ elif test $PLATFORM = "pc-i586"; then
     as="/usr/cross/bin/i586-pc-elf-as"
     ld="/usr/cross/bin/i586-pc-elf-ld"
     
-    cc_options="${cc_options} -D PAGE_BYTES=4096"
-    
     ld_options="${ld_options} -L /usr/cross/lib/gcc/i586-pc-elf/14.3.0"
-elif test $PLATFORM = "pc-amd64"; then
-    echo -e "${echo_fail}: pc-amd64 is not implemented yet"
-    exit 1
-elif test $PLATFORM = "watch-armv8-m"; then
+elif test $PLATFORM = "lw-efr32mg24"; then
     cc="/usr/cross/bin/arm-eabi-gcc"
     as="/usr/cross/bin/arm-eabi-as"
     ld="/usr/cross/bin/arm-eabi-ld"
     
-    cc_options="${cc_options} -D PAGE_BYTES=1024"
-    
     ld_options="${ld_options} -L /usr/cross/lib/gcc/arm-eabi/14.3.0"
+elif test $PLATFORM = "host-posix"; then
+    cc="/usr/bin/gcc"
+    as="/usr/bin/as"
+    ld="/usr/bin/ld"
+    
+    ld_options="${ld_options}"
 else
     echo -e "${echo_fail}: an unknown PLATFROM was specified"
     exit 1
@@ -51,6 +50,7 @@ fi
 cc_options="${cc_options} -D PLATFORM=\"$PLATFORM\""
 cc_options="${cc_options} -ffreestanding"
 cc_options="${cc_options} -fdiagnostics-color=always"
+cc_options="${cc_options} -Wno-multichar"
 cc_options="${cc_options} -I ."
 cc_options="${cc_options} -std=c23"
 cc_options="${cc_options} -O0 -g"

@@ -1,30 +1,35 @@
 #include <interval/kernel/main.h>
 #include <interval/kernel/device.h>
 
+#include <interval/device-modes/gpio.h>
+
 void main(void) {
-    // io_printf("hello from interval!\n");
-    // io_printf("reaching this point means a lot of things have gone well :D.\n");
+    device_t * gpio = device_match("gpio", NULL, DEVICE_NULL);
+    device_mode_t mode;
     
-    // requires (alongside platform-specific setups):
-    // - wide_pool
-    // - io_stream
+    for (long i = 0; i < gpio->mode_count; i++) {
+        if (gpio->modes[i].kind == GPIO_KIND) {
+            mode = gpio->modes[i];
+            break;
+        }
+    }
     
-    // provides:
-    // - thin_pool
-    // - device_*
-    // - config_*
+    const long id = mode.base + (PORT_A | WIRE_7 | DIRECTION_WRITE);
+    rwable_t * light = gpio->open(gpio, id);
     
-    // requires (alongside required and provided by Stage-A):
-    // - some clock device
-    // - some disk device
-    // - platform-specific thread switching code
+    while (true) {
+        write_char(light, 1);
+        
+        for (long i = 0; i < 4000000; i++) {
+            __asm__("");
+        }
+        
+        write_char(light, 0);
+        
+        for (long i = 0; i < 4000000; i++) {
+            __asm__("");
+        }
+    }
     
-    // provides:
-    // - thread_*
-    // - file_*
-    // - timer_*
-    // - ui_*
-    // - returns as if running thread w/ ID 0
-    
-    while (true);
+    light->close(light);
 }

@@ -3,7 +3,7 @@
 
 // === constants ===
 
-#define date_null ((date_t) {0, 0, 0, 0, 0, 0})
+#define DATE_NULL ((date_t) {0, 0, 0, 0, 0, 0})
 
 // === types ===
 

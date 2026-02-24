@@ -27,7 +27,7 @@ void * alloc(long bytes) {
         pool_t * pool = it->item;
         long o = pool_alloc(pool, round_up_units(bytes));
         
-        if (o != pool_null) {
+        if (o != POOL_NULL) {
             return (o * BYTES_IN_UNIT + it->item);
         }
         

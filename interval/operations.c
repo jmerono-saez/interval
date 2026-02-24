@@ -84,10 +84,8 @@ long hash_text(const char * text) {
 
 void move_text(char * to, const char * from) {
     for (long i = 0; from[i]; i++) {
-        to[i] = from[i];
+        to[i] = from[i], to[i + 1] = '\0';
     }
-    
-    to[i] = '\0';
 }
 
 bool equals_text(const char * text_1, const char * text_2) {

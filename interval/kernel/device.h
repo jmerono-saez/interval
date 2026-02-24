@@ -10,16 +10,14 @@
 
 // === constants ===
 
-#define lane_null (long)(0 - 1)
-
-enum : long {
-    mode_discovery,
-    mode_gpio,
-};
+#define LANE_NULL (long)(0 - 1)
+#define DEVICE_NULL (long)(0 - 1)
 
 // === types ===
 
 typedef struct lane_t lane_t;
+
+typedef struct device_mode_t device_mode_t;
 typedef struct device_t device_t;
 
 struct lane_t {
@@ -29,29 +27,44 @@ struct lane_t {
     rwable_t rw;
 };
 
+struct device_mode_t {
+    long kind, base;
+};
+
 struct device_t {
-    const char * name;
-    rwable_t *(* open)(device_t * device, long id);
-    
+    long id;
     list_t lanes;
+    
+    const char * category;
+    const char * group;
+    
+    device_mode_t * modes;
+    long mode_count;
+    
+    rwable_t *(* open)(device_t * device, long id);
 };
 
 // === globals ===
 
 extern list_t devices;
+extern long next_device_id;
 
 // === lane_t functions ===
 
-bool lane_present(device_t * device, long id);
+long lane_id(rwable_t * rw);
 
 rwable_t * lane_alloc(device_t * device, long id);
 void lane_free(rwable_t * rw);
+
+bool lane_present(device_t * device, long left, long right);
 
 // === device_t functions ===
 
 void device_init(void);
 
-device_t * device_alloc(const char * name, rwable_t *(* open)(device_t *, long));
-device_t * device_by_name(const char * name);
+device_t * device_alloc(const char * category, const char * group, device_mode_t * modes, long mode_count, rwable_t *(* open)(device_t *, long));
+void device_free(device_t * device);
+
+device_t * device_match(const char * category, const char * group, long start_id);
 
 #endif

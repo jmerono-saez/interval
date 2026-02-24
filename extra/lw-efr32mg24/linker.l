@@ -14,16 +14,16 @@ SECTIONS {
     } > FLASH
     
     .data : ALIGN(0x80) {
-        watch_armv8_m_data_left = .;
+        lw_data_left = .;
         
         *(.data)
         
         . = ALIGN(0x80);
         
-        watch_armv8_m_data_right = .;
+        lw_data_right = .;
     } > SRAM AT> FLASH
     
-    watch_armv8_m_data_flash = LOADADDR(.data);
+    lw_data_flash = LOADADDR(.data);
     
     .zero : ALIGN(0x80) {
         *(.zero)
@@ -31,14 +31,14 @@ SECTIONS {
         
         . = ALIGN(0x0400) + 0x0400;
         
-        watch_armv8_m_sp = .;
+        lw_sp = .;
         
         . = ALIGN(0x0400);
         
-        watch_armv8_m_zero_left = .;
+        lw_zero_left = .;
         
         . = ALIGN(0x00040000);
         
-        watch_armv8_m_zero_right = .;
+        lw_zero_right = .;
     } > SRAM
 }

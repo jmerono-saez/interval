@@ -5,7 +5,7 @@
 
 // === constants ===
 
-#define pool_null (long)(0 - 1)
+#define POOL_NULL (long)(0 - 1)
 
 enum : unsigned char {
     pool_free_node = 0x00,
