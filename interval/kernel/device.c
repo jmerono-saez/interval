@@ -10,11 +10,6 @@ long next_device_id;
 
 // === lane_t functions ===
 
-long lane_id(rwable_t * rw) {
-    lane_t * lane = rw->data;
-    return lane->id;
-}
-
 rwable_t * lane_alloc(device_t * device, long id) {
     lane_t * lane = alloc(sizeof(lane_t));
     
@@ -22,6 +17,7 @@ rwable_t * lane_alloc(device_t * device, long id) {
     lane->device = device;
     
     lane->rw.data = lane;
+    lane->rw.head = 0;
     
     iterator_store(device->lanes.end, lane);
     return (&(lane->rw));
@@ -45,13 +41,13 @@ void lane_free(rwable_t * rw) {
     free(lane);
 }
 
-bool lane_present(device_t * device, long left, long right) {
+bool lane_present(device_t * device, long id, long mask) {
     iterator_t * it = device->lanes.begin;
     
     while (it != device->lanes.end) {
         lane_t * lane = it->item;
         
-        if (lane->id >= left && lane->id < right) {
+        if ((lane->id & mask) == (id & mask)) {
             return true;
         }
         

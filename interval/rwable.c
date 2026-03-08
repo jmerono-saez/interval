@@ -3,18 +3,24 @@
 
 // === functions ===
 
-bool write_char(rwable_t * rw, char ch) {
-    return (rw->write(rw, &(ch), sizeof(char)) == sizeof(char));
+bool write_ul(rwable_t * rw, unsigned long ul) {
+    return rw->write(rw, &(ul), sizeof(unsigned long));
 }
 
-char read_char(rwable_t * rw, char empty_ch) {
+unsigned long read_ul(rwable_t * rw, unsigned long empty_ul) {
+    unsigned long ul;
+    
+    return rw->read(rw, &(ul), sizeof(unsigned long)) ? ul : empty_ul;
+}
+
+bool write_ch(rwable_t * rw, char ch) {
+    return rw->write(rw, &(ch), sizeof(char));
+}
+
+char read_ch(rwable_t * rw, char empty_ch) {
     char ch;
     
-    if (rw->read(rw, &(ch), sizeof(char)) != sizeof(char)) {
-        return empty_ch;
-    }
-    
-    return ch;
+    return rw->read(rw, &(ch), sizeof(char)) ? ch : empty_ch;
 }
 
 long format(rwable_t * rw, const char * text, ...) {

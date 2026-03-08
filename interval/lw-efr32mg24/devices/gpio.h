@@ -1,7 +1,7 @@
 #ifndef __INTERVAL_LW_EFR32MG24_DEVICES_GPIO_H__
 #define __INTERVAL_LW_EFR32MG24_DEVICES_GPIO_H__
 
-#include <interval/kernel/device.h>
+#include <interval/device-modes/gpio.h>
 
 // === constants ===
 

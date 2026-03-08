@@ -2,6 +2,7 @@
 #include <interval/kernel/device.h>
 
 #include <interval/device-modes/gpio.h>
+#include <interval/operations.h>
 
 void main(void) {
     device_t * gpio = device_match("gpio", NULL, DEVICE_NULL);
@@ -14,19 +15,28 @@ void main(void) {
         }
     }
     
-    const long id = mode.base + (PORT_A | WIRE_7 | DIRECTION_WRITE);
-    rwable_t * light = gpio->open(gpio, id);
+    rwable_t * discovery = gpio->open(gpio, mode.base);
+    gpio_t wire;
+    
+    while (discovery->read(discovery, &(wire), sizeof(gpio_t))) {
+        if (equals_text(wire.name, "A7")) {
+            break;
+        }
+    }
+    
+    discovery->close(discovery);
+    rwable_t * light = gpio->open(gpio, wire.output_lane);
     
     while (true) {
-        write_char(light, 1);
+        write_ul(light, 1);
         
-        for (long i = 0; i < 4000000; i++) {
+        for (long i = 0; i < 1048576; i++) {
             __asm__("");
         }
         
-        write_char(light, 0);
+        write_ul(light, 0);
         
-        for (long i = 0; i < 4000000; i++) {
+        for (long i = 0; i < 1048576; i++) {
             __asm__("");
         }
     }

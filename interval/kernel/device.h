@@ -51,12 +51,10 @@ extern long next_device_id;
 
 // === lane_t functions ===
 
-long lane_id(rwable_t * rw);
-
 rwable_t * lane_alloc(device_t * device, long id);
 void lane_free(rwable_t * rw);
 
-bool lane_present(device_t * device, long left, long right);
+bool lane_present(device_t * device, long id, long mask);
 
 // === device_t functions ===
 

@@ -1,25 +1,19 @@
 #ifndef __INTERVAL_DEVICE_MODES_GPIO_H__
 #define __INTERVAL_DEVICE_MODES_GPIO_H__
 
-// GPIO lanes are decomposed bit-wise as 0bPPPWWWWD, where P, W and D
-// represent port, wire and direction, respectively.
-
 // === constants ===
 
-#define GPIO_KIND (long)('IO')
+#define GPIO_KIND (long)('gpio')
 
-#define GPIO_PITCH (long)(1ul << 8)
-#define PORT_PITCH (long)(1ul << 5)
-#define WIRE_PITCH (long)(1ul << 1)
+// === types ===
 
-enum : long {
-    gpio_write,
-    gpio_read,
+typedef struct gpio_t gpio_t;
+
+struct gpio_t {
+    char name[8];
+    long width;
+    
+    long output_lane, input_lane;
 };
-
-// === macros ===
-
-#define gpio_port_id(base, port, direction) (port << 5 | direction | 0x16)
-#define gpio_wire_id(base, wire, direction) (wire << 1 | direction)
 
 #endif

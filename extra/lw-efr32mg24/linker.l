@@ -5,7 +5,7 @@ MEMORY {
 
 SECTIONS {
     .text : ALIGN(0x80) {
-        *(.vector_table)
+        *(.vectors)
         
         . = ALIGN(0x80);
         
@@ -17,6 +17,7 @@ SECTIONS {
         lw_data_left = .;
         
         *(.data)
+        *(.bss)
         
         . = ALIGN(0x80);
         
@@ -26,9 +27,6 @@ SECTIONS {
     lw_data_flash = LOADADDR(.data);
     
     .zero : ALIGN(0x80) {
-        *(.zero)
-        *(.bss)
-        
         . = ALIGN(0x0400) + 0x0400;
         
         lw_sp = .;

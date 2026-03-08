@@ -11,6 +11,10 @@
     (1ul << (sizeof(long) * 2 - 1)) |\
 0xF9ul)
 
+// === macros ===
+
+#define take_digit(ul, digit) (((ul) >> ((digit) * 4)) & 0x0F)
+
 // === generic functions ===
 
 long hash(const void * pt, long bytes);
